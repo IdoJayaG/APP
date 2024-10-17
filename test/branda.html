@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Kehadiran Batalyon</title>
+    <style>
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Form Kehadiran Batalyon</h1>
+
+<form id="attendanceForm">
+    <!-- Tanggal -->
+    <label for="tanggal">Pilih Tanggal:</label>
+    <input type="date" id="tanggal" name="tanggal" min="" required>
+
+    <!-- Batalyon -->
+    <label for="batalyon">Pilih Batalyon:</label>
+    <select id="batalyon" name="batalyon" required>
+        <option value="">--Pilih Batalyon--</option>
+        <option value="Batalyon A">Batalyon A</option>
+        <option value="Batalyon B">Batalyon B</option>
+        <option value="Batalyon C">Batalyon C</option>
+    </select>
+
+    <!-- Jumlah -->
+    <label for="jumlah">Jumlah:</label>
+    <input type="number" id="jumlah" name="jumlah" min="1" required>
+
+    <!-- Kurang -->
+    <label for="kurang">Kurang:</label>
+    <input type="number" id="kurang" name="kurang" min="0" required>
+
+    <!-- Hadir (otomatis dihitung) -->
+    <label for="hadir">Hadir:</label>
+    <input type="number" id="hadir" name="hadir" readonly>
+
+    <!-- Keterangan (muncul ketika ada nilai pada 'kurang') -->
+    <div id="keteranganDiv" class="hidden">
+        <label for="keterangan">Keterangan:</label>
+        <textarea id="keterangan" name="keterangan"></textarea>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" id="submitBtn" disabled>Submit</button>
+</form>
+
+<script>
+    // Set tanggal minimal hari ini
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('tanggal').setAttribute('min', today);
+
+    // Update form Hadir ketika form Kurang diisi
+    const jumlahInput = document.getElementById('jumlah');
+    const kurangInput = document.getElementById('kurang');
+    const hadirInput = document.getElementById('hadir');
+    const keteranganDiv = document.getElementById('keteranganDiv');
+    const submitBtn = document.getElementById('submitBtn');
+
+    kurangInput.addEventListener('input', function () {
+        const jumlah = parseInt(jumlahInput.value) || 0;
+        const kurang = parseInt(kurangInput.value) || 0;
+
+        // Update form hadir
+        hadirInput.value = jumlah - kurang;
+
+        // Tampilkan form keterangan jika ada kurang
+        if (kurang > 0) {
+            keteranganDiv.classList.remove('hidden');
+        } else {
+            keteranganDiv.classList.add('hidden');
+        }
+
+        validateForm();
+    });
+
+    // Validasi semua input sudah diisi
+    document.querySelectorAll('input, select, textarea').forEach(function (element) {
+        element.addEventListener('input', validateForm);
+    });
+
+    function validateForm() {
+        const isFormValid = jumlahInput.value && kurangInput.value && hadirInput.value && 
+                            document.getElementById('tanggal').value && 
+                            document.getElementById('batalyon').value &&
+                            (kurangInput.value == 0 || document.getElementById('keterangan').value);
+
+        submitBtn.disabled = !isFormValid;
+    }
+</script>
+
+</body>
+</html>
